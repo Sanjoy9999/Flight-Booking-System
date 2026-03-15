@@ -21,6 +21,11 @@ A full-stack flight booking application that allows users to search, select, and
 
 `Next.js (UI) → Node.js REST API → MongoDB`
 
+## Deployment Links
+
+- Frontend: https://flights-booking-system.vercel.app
+- Backend: https://flight-booking-backend-w0bl.onrender.com
+
 ## Project Structure
 
 ```
@@ -85,4 +90,3 @@ A guaranteed working search based on `flight.json`:
 2.  Select a flight and fare from the results.
 3.  Enter traveller details on the passenger form.
 4.  View the final booking confirmation.
-
