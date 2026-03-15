@@ -29,6 +29,29 @@ export function parseFlights(flightData) {
           totalMinutes += segment.durationInMin || 0;
         }
 
+        // Keep only one fare per fare bucket (fareGroup + cabinType), choosing the cheapest.
+        const fareBuckets = new Map();
+        for (const fare of flightInfo.fares || []) {
+          const cabinType = fare.fareIdentifiers?.cabinType || "ECONOMY";
+          const bucketKey = `${fare.fareGroup}-${cabinType}`;
+          const currentPrice = parseInt(fare.price?.pricePerAdult || "0", 10);
+          const existingFare = fareBuckets.get(bucketKey);
+
+          if (!existingFare) {
+            fareBuckets.set(bucketKey, fare);
+            continue;
+          }
+
+          const existingPrice = parseInt(
+            existingFare.price?.pricePerAdult || "0",
+            10,
+          );
+
+          if (currentPrice < existingPrice) {
+            fareBuckets.set(bucketKey, fare);
+          }
+        }
+
         // Create flight object
         const flight = {
           flightKey: flightKey,
@@ -47,7 +70,7 @@ export function parseFlights(flightData) {
             duration: segment.durationInMin,
           })),
           totalDuration: totalMinutes,
-          fares: flightInfo.fares.map((fare) => ({
+          fares: Array.from(fareBuckets.values()).map((fare) => ({
             fareId: fare.fareId,
             fareGroup: fare.fareGroup,
             cabinType: fare.fareIdentifiers?.cabinType || "ECONOMY",
