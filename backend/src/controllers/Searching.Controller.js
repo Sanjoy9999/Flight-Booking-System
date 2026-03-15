@@ -1,0 +1,105 @@
+import { getFlightData, parseFlights } from "../utils/flightDataReader.js";
+
+// Filter flights based on criteria
+function filterFlights(flights, filters) {
+  let results = flights;
+
+  // Filter by source airport code
+  if (filters.source) {
+    results = results.filter((flight) => {
+      const source = flight.flights[0]?.departureAirport;
+      return source === filters.source.toUpperCase();
+    });
+  }
+
+  // Filter by destination airport code
+  if (filters.destination) {
+    results = results.filter((flight) => {
+      const lastFlight = flight.flights[flight.flights.length - 1];
+      const destination = lastFlight?.arrivalAirport;
+      return destination === filters.destination.toUpperCase();
+    });
+  }
+
+  // Filter by departure date
+  if (filters.departureDate) {
+    results = results.filter((flight) => {
+      const departDate = new Date(flight.departureTime)
+        .toISOString()
+        .split("T")[0];
+      return departDate === filters.departureDate;
+    });
+  }
+
+  // Filter by maximum price
+  if (filters.maxPrice) {
+    results = results.filter((flight) => {
+      return parseInt(flight.lowestPrice) <= parseInt(filters.maxPrice);
+    });
+  }
+
+  // Filter by number of stops
+  if (filters.stops !== undefined) {
+    const selectedStops = parseInt(filters.stops);
+    results = results.filter((flight) => {
+      if (selectedStops === 0 || selectedStops === 1) {
+        return flight.totalStops === selectedStops;
+      } else {
+        return flight.totalStops >= 2;
+      }
+    });
+  }
+
+  // Filter by departure time range
+  if (filters.departureTimeStart) {
+    const startHour = parseInt(filters.departureTimeStart);
+    results = results.filter((flight) => {
+      const departHour = new Date(flight.departureTime).getHours();
+      return departHour >= startHour;
+    });
+  }
+
+  if (filters.departureTimeEnd) {
+    const endHour = parseInt(filters.departureTimeEnd);
+    results = results.filter((flight) => {
+      const departHour = new Date(flight.departureTime).getHours();
+      return departHour <= endHour;
+    });
+  }
+
+  return results;
+}
+
+// Search for flights
+export const searchFlights = (req, res) => {
+  try {
+    const filters = req.body;
+    const flightData = getFlightData();
+    const parsedData = parseFlights(flightData);
+
+    if (!parsedData.success) {
+      return res.status(400).json(parsedData);
+    }
+
+    // Apply all filters
+    const filteredFlights = filterFlights(parsedData.flights, filters);
+
+    // Sort by price (cheapest first)
+    filteredFlights.sort(
+      (a, b) => parseInt(a.lowestPrice) - parseInt(b.lowestPrice),
+    );
+
+    res.json({
+      success: true,
+      searchId: parsedData.searchId,
+      totalResults: filteredFlights.length,
+      flights: filteredFlights,
+    });
+  } catch (error) {
+    console.error("Search error:", error);
+    res.status(500).json({
+      success: false,
+      error: "Error searching flights",
+    });
+  }
+};
