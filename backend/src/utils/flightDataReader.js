@@ -7,7 +7,7 @@ const __dirname = dirname(__filename);
 
 // Read flight data from JSON file
 export function getFlightData() {
-  const filePath = dirname(__dirname) + "/data/flight.json";
+  const filePath = dirname(dirname(__dirname)) + "/data/flight.json";
   return JSON.parse(readFileSync(filePath, "utf-8"));
 }
 
@@ -15,19 +15,14 @@ export function getFlightData() {
 export function parseFlights(flightData) {
   try {
     const { searchId, result } = flightData.data;
-    const { journeys, sectors } = result;
+    const { sectors } = result;
 
     const flights = [];
 
-    // Loop through journeys and get flights from each sector
-    for (const journey of Object.values(journeys)) {
-      const sectorKey = journey.sector;
-      const sectorFlights = sectors[sectorKey];
-
-      if (!sectorFlights) continue;
-
+    // Loop through sectors and get flights from each sector
+    for (const sector of Object.values(sectors)) {
       // Loop through flights in this sector
-      for (const [flightKey, flightInfo] of Object.entries(sectorFlights)) {
+      for (const [flightKey, flightInfo] of Object.entries(sector)) {
         // Calculate total duration
         let totalMinutes = 0;
         for (const segment of flightInfo.flights) {

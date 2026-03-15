@@ -28,11 +28,13 @@ export default function FlightResults({ flights, searchId }: Props) {
   return (
     <div className="space-y-4">
       {/* Results Header */}
-      <div className="bg-white rounded shadow p-4">
-        <p className="text-gray-600">
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg dark:shadow-2xl dark:shadow-black/30 p-4 border dark:border-gray-700">
+        <p className="text-gray-600 dark:text-gray-300 font-medium">
           Found{" "}
-          <span className="font-bold text-blue-600">{flights.length}</span>{" "}
-          flights
+          <span className="font-bold text-blue-600 dark:text-blue-400 text-lg">
+            {flights.length}
+          </span>{" "}
+          {flights.length === 1 ? "flight" : "flights"} 🛫
         </p>
       </div>
 

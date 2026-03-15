@@ -66,7 +66,7 @@ _Tests the maximum passenger limits._
 
 ---
 
-# ✅ COMPREHENSIVE VALID SEARCH INPUTS (From flight.json)
+# COMPREHENSIVE VALID SEARCH INPUTS (From flight.json)
 
 ## Flight Data Overview from flight.json
 
@@ -201,7 +201,7 @@ DEL-DXB-20260302-ECONOMY-2-2-1-2-R-20260305-azwfoxyhwcg30e4oy2n3xhlm
 
 ---
 
-## ✅ GUARANTEED WORKING SEARCH REQUESTS
+## GUARANTEED WORKING SEARCH REQUESTS
 
 ### Request 1: Basic Outbound Search
 
@@ -369,25 +369,25 @@ DEL-DXB-20260302-ECONOMY-2-2-1-2-R-20260305-azwfoxyhwcg30e4oy2n3xhlm
 
 ## Validation Rules (Applied in Controller)
 
-✅ **Required Fields**:
+**Required Fields**:
 
 - source (cannot be empty)
 - destination (cannot be empty)
 - departureDate (cannot be empty)
 
-✅ **Range Validation**:
+  **Range Validation**:
 
 - maxPrice: Must be > 0
 - stops: Must be 0, 1, or 2 (2+ stops)
 - departureTimeStart: Must be 0-23
 - departureTimeEnd: Must be 0-23
 
-✅ **Date Validation**:
+  **Date Validation**:
 
 - Must match format: YYYY-MM-DD
 - Must only be: 2026-03-02 or 2026-03-05 (from file.json)
 
-✅ **Airport Code Validation**:
+  **Airport Code Validation**:
 
 - source & destination must be from available airports
 - source ≠ destination

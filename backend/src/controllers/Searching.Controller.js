@@ -24,9 +24,8 @@ function filterFlights(flights, filters) {
   // Filter by departure date
   if (filters.departureDate) {
     results = results.filter((flight) => {
-      const departDate = new Date(flight.departureTime)
-        .toISOString()
-        .split("T")[0];
+      // Extract date directly to avoid timezone conversion issues
+      const departDate = flight.departureTime.split("T")[0];
       return departDate === filters.departureDate;
     });
   }
@@ -74,15 +73,43 @@ function filterFlights(flights, filters) {
 export const searchFlights = (req, res) => {
   try {
     const filters = req.body;
+    console.log(" Search request received with filters:", filters);
+
     const flightData = getFlightData();
+    console.log(" Flight data loaded, searching from file");
+
     const parsedData = parseFlights(flightData);
+    console.log(" Parse result:", {
+      success: parsedData.success,
+      flights: parsedData.flights?.length || 0,
+    });
 
     if (!parsedData.success) {
+      console.error(" Parse failed:", parsedData);
       return res.status(400).json(parsedData);
     }
 
+    console.log(
+      " Available flights before filtering:",
+      parsedData.flights.length,
+    );
+    console.log(
+      " Sample flight:",
+      parsedData.flights[0]
+        ? {
+            airline: parsedData.flights[0].airline,
+            departureTime: parsedData.flights[0].departureTime,
+            flights: parsedData.flights[0].flights?.map((f) => ({
+              dept: f.departureAirport,
+              arr: f.arrivalAirport,
+            })),
+          }
+        : "No flights",
+    );
+
     // Apply all filters
     const filteredFlights = filterFlights(parsedData.flights, filters);
+    console.log(" Flights after filtering:", filteredFlights.length);
 
     // Sort by price (cheapest first)
     filteredFlights.sort(
@@ -96,10 +123,12 @@ export const searchFlights = (req, res) => {
       flights: filteredFlights,
     });
   } catch (error) {
-    console.error("Search error:", error);
+    console.error(" Search error:", error.message);
+    console.error("Stack:", error.stack);
     res.status(500).json({
       success: false,
       error: "Error searching flights",
+      details: error.message,
     });
   }
 };
